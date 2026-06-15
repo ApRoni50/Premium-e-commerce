@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 // প্রোডাক্ট ডেটা
@@ -34,6 +34,11 @@ export default function Home() {
   // কার্ট ড্রয়ার ওপেন/ক্লোজ করার স্টেট
   const [isCartOpen, setIsCartOpen] = useState(false);
 
+  // কার্ট আপডেট হলে সেটি ব্রাউজারের localStorage-এ সেভ করে রাখা
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
+
   // কার্টে প্রোডাক্ট যোগ করার ফাংশন
   const addToCart = (product: typeof products[0]) => {
     setCart([...cart, { id: product.id, name: product.name, price: product.price, image: product.image }]);
@@ -51,7 +56,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-between relative overflow-x-hidden">
       
-      {/* ১. কার্ট ড্রয়ারের ব্যাকড্রপ (পেছনের অন্ধকার স্ক্রিন) */}
+      {/* ১. কার্ট ড্রয়ারের ব্যাকড্রপ */}
       <div 
         className={`fixed inset-0 bg-black/50 z-50 transition-opacity duration-300 ${
           isCartOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
@@ -59,7 +64,7 @@ export default function Home() {
         onClick={() => setIsCartOpen(false)}
       />
 
-      {/* ২. কার্ট ড্রয়ার প্যানেল (ডান দিক থেকে স্লাইড হবে) */}
+      {/* ২. কার্ট ড্রয়ার প্যানেল */}
       <div 
         className={`fixed top-0 right-0 h-full w-80 sm:w-96 bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out flex flex-col justify-between ${
           isCartOpen ? "translate-x-0" : "translate-x-full"
@@ -102,7 +107,7 @@ export default function Home() {
           )}
         </div>
 
-        {/* ড্রয়ার ফুটার (টোটাল প্রাইস ও চেকআউট) */}
+        {/* ড্রয়ার ফুটার (চেকআউট লিংক যুক্ত করা হয়েছে) */}
         {cart.length > 0 && (
           <div className="p-4 border-t border-gray-200 bg-gray-50 space-y-3">
             <div className="flex justify-between items-center text-sm font-bold text-gray-800">
@@ -116,18 +121,19 @@ export default function Home() {
               >
                 খালি করুন
               </button>
-              <button 
-                onClick={() => alert("অর্ডার সফল হয়েছে! ধন্যবাদ।")}
-                className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2.5 px-4 rounded-lg transition text-center"
+              {/* নতুন চেকআউট পেজের জন্য লিংক */}
+              <Link 
+                href="/checkout"
+                className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2.5 px-4 rounded-lg transition text-center flex items-center justify-center"
               >
                 চেকআউট
-              </button>
+              </Link>
             </div>
           </div>
         )}
       </div>
 
-      {/* ৩. হেডার উইথ লাইভ কার্ট আইকন */}
+      {/* ৩. হেডার */}
       <header className="bg-white border-b border-gray-200 py-4 px-6 sticky top-0 z-40 shadow-sm">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <h1 className="text-xl font-bold text-blue-600">PremiumShop</h1>
@@ -137,7 +143,6 @@ export default function Home() {
               <Link href="#" className="hover:text-blue-600">শপ</Link>
             </nav>
             
-            {/* কার্ট আইকনে ক্লিক করলে ড্রয়ার ওপেন হবে */}
             <button 
               onClick={() => setIsCartOpen(true)}
               className="relative bg-gray-100 p-2 rounded-full cursor-pointer hover:bg-gray-200 transition focus:outline-none"
